@@ -1,12 +1,11 @@
 # DropBridge Android app (builds on GitHub, no Android Studio needed)
 
-1. Create a new GitHub repository (github.com/new).
-2. Upload the CONTENTS of this folder to it (settings.gradle.kts, app/, .github/ ...).
-   - If the hidden .github folder doesn't upload: Add file > Create new file, type
-     `.github/workflows/build.yml` as the name and paste in the build.yml from this zip.
-3. Open the Actions tab. "Build APK" starts by itself (or click Run workflow). Takes about 5 minutes.
-4. When it's green: Releases (right side of repo) > "DropBridge (latest build)" > download DropBridge.apk.
-   Open it on your phone and allow "Install unknown apps".
+1. Create a new GitHub repository and upload the CONTENTS of this folder (app/, .github/, settings.gradle.kts ...).
+   If the hidden .github folder doesn't upload: Add file > Create new file > `.github/workflows/build.yml`, paste the file from this zip.
+2. Every push builds the APK automatically (Actions tab, about 5 min) and publishes it to Releases.
+3. Releases > "DropBridge for Android (latest build)" > DropBridge.apk. Install it and allow "Install unknown apps".
+   Builds are signed with the key in app/dropbridge.p12, so new versions install over old ones. No uninstalling.
 
-Using it: open the app > Scan QR code (from DropBridge on your PC). In any app, tap Share > DropBridge
-to send links, photos, videos and files straight to the PC. Works on Wi-Fi/hotspot without internet.
+Use: open the app > Scan QR code (from DropBridge on your PC). Wi-Fi/hotspot links and online sessions both work.
+In any app: Share > DropBridge sends links, photos, videos and files to the PC.
+Saving: tap Save on a file and it goes to your Downloads folder.

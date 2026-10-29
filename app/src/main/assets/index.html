@@ -1,0 +1,129 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>DropBridge</title>
+<link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#F4F7FC">
+<style>
+:root{--bg:#F4F7FC;--c:#fff;--t:#1B2330;--m:#6B7686;--a:#2F6BFF;--b:#E2E8F0;--in:#F8FAFC;--dz:#C5D0E2;--sh:0 4px 20px -2px rgba(16,24,40,.05)}
+@media(prefers-color-scheme:dark){:root{--bg:#15181d;--c:#1f2329;--t:#E6E9EE;--m:#8D96A5;--b:#2F353E;--in:#181b20;--dz:#3A414C;--sh:none}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;font:15px/1.4 Inter,"SF Pro Display",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--t)}
+#app{display:flex;min-height:100vh;gap:18px;padding:18px;max-width:1100px;margin:0 auto}
+aside{width:300px;flex:none}main{flex:1;min-width:0}
+.card{background:var(--c);border:1px solid var(--b);border-radius:16px;padding:18px;box-shadow:var(--sh)}
+h1{font-size:19px;margin:0;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}h2{font-size:14px;margin:0 0 4px}.m{color:var(--m);font-size:13px}
+.logo{width:28px;height:28px;border-radius:8px;flex:none}
+#qr{background:#fff;border:1px solid var(--b);border-radius:12px;padding:12px;width:208px;height:208px;margin:14px auto}#qr svg{width:100%;height:100%;display:block}
+#link{display:block;word-break:break-all;text-align:center;font-size:13px;color:var(--a);cursor:pointer;margin-bottom:6px}
+select{width:100%;background:var(--in);color:var(--t);border:1px solid var(--b);border-radius:10px;padding:9px;font:inherit;margin-top:8px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--b)}
+.tg{width:44px;height:26px;border-radius:13px;background:var(--b);border:1px solid var(--dz);position:relative;cursor:pointer;flex:none;transition:.15s}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:.15s}
+.tg.on{background:linear-gradient(180deg,#4387F6,#1B64E3);border-color:#1652C5}.tg.on::after{left:20px}
+/* glossy primary button */
+.p{background:linear-gradient(180deg,#4387F6,#1B64E3);border:1px solid #1652C5;border-radius:10px;color:#fff;font:600 15px/1 inherit;letter-spacing:-.01em;padding:0 24px;min-height:46px;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 4px rgba(27,100,227,.15);cursor:pointer;transition:transform .06s,filter .12s}
+.p:hover{background:linear-gradient(180deg,#5594F7,#266EE6);border-color:#195AE0}
+.p:active{background:linear-gradient(180deg,#1B64E3,#1253C2);box-shadow:inset 0 0 0 rgba(255,255,255,0),0 1px 2px rgba(27,100,227,.15);transform:scale(.98)}
+.p:disabled{background:#E2E8F0;border-color:#CBD5E1;color:#94A3B8;box-shadow:none;cursor:not-allowed;transform:none}
+@media(prefers-color-scheme:dark){.p:disabled{background:#2A2F37;border-color:#363C46;color:#6F7885}}
+.g{background:var(--c);color:var(--t);border:1px solid var(--b);border-radius:9px;padding:5px 12px;font:500 12.5px inherit;cursor:pointer}
+.g:hover{border-color:var(--a);color:var(--a)}.g:active{transform:scale(.97)}
+#zone{border:2px dashed var(--dz);border-radius:16px;padding:32px 16px;text-align:center;cursor:pointer;color:var(--m);background:var(--c);transition:.12s}
+#zone b{color:var(--t);display:block;font-size:16px;margin-bottom:4px}
+#zone:hover,#zone.over{border-color:var(--a);background:rgba(47,107,255,.06)}#zone.over b{color:var(--a)}
+.compose{display:flex;gap:10px;margin-top:12px}
+textarea{flex:1;min-height:46px;height:46px;background:var(--in);color:var(--t);border:1px solid var(--b);border-radius:12px;padding:12px 14px;font:inherit;resize:vertical;outline:0;transition:.12s}
+textarea:focus{background:var(--c);border-color:#4387F6;box-shadow:0 0 0 3px rgba(67,135,246,.2)}
+.top{display:flex;justify-content:space-between;align-items:center;margin:2px 0 14px}.top .m{margin-top:2px}
+#bar{height:4px;background:var(--b);border-radius:2px;margin-top:10px;display:none;overflow:hidden}#bar i{display:block;height:100%;width:0;background:linear-gradient(180deg,#4387F6,#1B64E3);transition:width .1s}
+.item{margin-top:10px;background:var(--c);border:1px solid var(--b);border-radius:14px;padding:14px;word-break:break-word;box-shadow:var(--sh)}
+.item pre{margin:0;white-space:pre-wrap;font:inherit}.item a{color:var(--a)}
+.meta{color:var(--m);font-size:12px;margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.meta .sp{flex:1}
+.pill{background:rgba(47,107,255,.1);color:var(--a);border-radius:20px;padding:2px 9px;font-weight:600;font-size:11.5px}
+img,video{max-width:100%;max-height:420px;border-radius:10px;display:block}audio{width:100%}
+#gate{max-width:340px;margin:22vh auto;text-align:center;padding:0 16px}#prog{margin-top:8px}
+@media(max-width:760px){#app{flex-direction:column;padding:12px}aside{width:auto}}
+</style></head><body>
+<div id="gate" hidden><h1 style="justify-content:center">DropBridge</h1><p class="m">Not connected. On your PC, open DropBridge and scan the QR code with your phone camera.</p><button class="p" id="rs2" hidden style="margin-top:8px">Scan QR</button></div>
+<div id="app" hidden>
+<aside id="side" hidden><div class="card">
+ <h1>Connect a phone</h1><div class="m" id="hint" style="margin-top:6px">Scan with your phone camera.</div>
+ <div id="qr"></div><a id="link"></a>
+ <select id="net" hidden></select>
+ <div class="sw"><div><h2>Share anywhere (online)</h2><div class="m" id="tstat">Off. Works only on the same Wi-Fi or hotspot.</div></div><div class="tg" id="tg"></div></div>
+</div></aside>
+<main>
+ <div class="top"><div><h1><svg class="logo" viewBox="0 0 28 28"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4387F6"/><stop offset="1" stop-color="#1B64E3"/></linearGradient></defs><rect width="28" height="28" rx="8" fill="url(#lg)"/><path d="M7 11h13M16 7l4 4-4 4M21 17H8M12 13l-4 4 4 4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>DropBridge</h1><div class="m" id="who"></div></div>
+ <div><button class="g" id="rescan" hidden>Scan QR</button> <button class="g" id="clr">Clear all</button></div></div>
+ <div id="zone"><b>Drop files here</b><span id="zt">or click to choose photos, videos and files</span></div>
+ <input id="f" type="file" multiple hidden>
+ <div class="compose"><textarea id="t" placeholder="Paste a link or type text"></textarea><button class="p" id="send" disabled>Send</button></div>
+ <div id="prog" class="m"></div><div id="bar"><i></i></div><div id="list"></div>
+</main></div>
+<script src="/qr.js"></script>
+<script>
+const $=s=>document.querySelector(s);let last='',info={},sel=0,lastQr='',busy=false;
+const ls=(k,v)=>{try{return v===undefined?localStorage.getItem(k):localStorage.setItem(k,v)}catch(_){}};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+async function api(p,o){const r=await fetch(p,o);if(r.status==401){$('#gate').hidden=false;$('#app').hidden=true;throw 0}return r}
+const fmt=n=>n>1e6?(n/1e6).toFixed(1)+' MB':Math.max(1,Math.ceil(n/1e3))+' KB';
+function copy(s){return navigator.clipboard?navigator.clipboard.writeText(s):new Promise(ok=>{const a=document.createElement('textarea');a.value=s;document.body.append(a);a.select();document.execCommand('copy');a.remove();ok()})}
+async function sendText(){const v=$('#t').value;if(!v.trim())return;await api('/api/text',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:v})});$('#t').value='';$('#send').disabled=true;load()}
+function upload(file){return new Promise(ok=>{const x=new XMLHttpRequest();x.open('POST','/api/upload');
+ x.setRequestHeader('x-filename',encodeURIComponent(file.name||'pasted-'+Date.now()+'.png'));x.setRequestHeader('content-type',file.type||'application/octet-stream');
+ x.upload.onprogress=e=>{const p=Math.round(e.loaded/e.total*100);$('#prog').textContent=`Sending ${file.name||'file'}  ${p}%`;$('#bar').style.display='block';$('#bar i').style.width=p+'%'};
+ x.onload=x.onerror=()=>{$('#prog').textContent='';$('#bar').style.display='none';ok()};x.send(file)})}
+async function sendFiles(fl){for(const f of [...fl])await upload(f);load()}
+$('#send').onclick=sendText;$('#t').oninput=()=>{$('#send').disabled=!$('#t').value.trim()};$('#t').onkeydown=e=>{if(e.ctrlKey&&e.key==='Enter')sendText()};
+$('#zone').onclick=()=>$('#f').click();$('#f').onchange=e=>{sendFiles(e.target.files);e.target.value=''};
+$('#clr').onclick=async()=>{if(confirm('Delete everything shared so far?')){await api('/api/items',{method:'DELETE'});load()}};
+addEventListener('paste',e=>{const fs=[...e.clipboardData.files];if(fs.length){e.preventDefault();sendFiles(fs)}});
+addEventListener('dragover',e=>{e.preventDefault();$('#zone').classList.add('over')});
+addEventListener('dragleave',e=>{if(!e.relatedTarget)$('#zone').classList.remove('over')});
+addEventListener('drop',e=>{e.preventDefault();$('#zone').classList.remove('over');sendFiles(e.dataTransfer.files)});
+function linkify(s){const f=document.createDocumentFragment();let i=0;
+ for(const m of s.matchAll(/https?:\/\/[^\s<>"]+/g)){f.append(s.slice(i,m.index));const a=document.createElement('a');a.href=m[0];a.textContent=m[0];a.target='_blank';a.rel='noopener';f.append(a);i=m.index+m[0].length}
+ f.append(s.slice(i));return f}
+function btn(l,fn){const b=document.createElement('button');b.className='g';b.textContent=l;b.onclick=fn;return b}
+function saveFile(u,name){
+ if(window.DropBridgeApp&&DropBridgeApp.save){DropBridgeApp.save(u+'?dl',name);return}
+ const a=document.createElement('a');a.href=u+'?dl';a.download=name;document.body.append(a);a.click();a.remove()}
+function card(it){const d=document.createElement('div');d.className='item';const m=document.createElement('div');m.className='meta';
+ if(it.from){const p=document.createElement('span');p.className='pill';p.textContent=it.from;m.append(p)}
+ m.append(new Date(it.t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));const sp=document.createElement('span');sp.className='sp';m.append(sp);
+ if(it.kind==='text'){const p=document.createElement('pre');p.append(linkify(it.text));d.append(p);
+  m.append(btn('Copy',async e=>{await copy(it.text);e.target.textContent='Copied'}));
+  if(/^https?:\/\/\S+$/.test(it.text))m.append(btn('Open',()=>open(it.text,'_blank')))}
+ else{const u='/f/'+it.id;
+  if(it.mime.startsWith('image/')){const i=document.createElement('img');i.src=u;i.loading='lazy';d.append(i)}
+  else if(it.mime.startsWith('video/')){const v=document.createElement('video');v.src=u;v.controls=true;v.preload='metadata';d.append(v)}
+  else if(it.mime.startsWith('audio/')){const v=document.createElement('audio');v.src=u;v.controls=true;d.append(v)}
+  const n=document.createElement('div');n.textContent=it.name+'  ·  '+fmt(it.size);n.className='m';n.style.marginTop='8px';d.append(n);
+  m.append(btn('Save',()=>saveFile(u,it.name)))}
+ m.append(btn('Delete',async()=>{await api('/api/items/'+it.id,{method:'DELETE'});load()}));d.append(m);return d}
+async function load(){try{const r=await api('/api/items'),txt=await r.text();$('#app').hidden=false;$('#gate').hidden=true;
+ if(txt===last)return;last=txt;$('#list').replaceChildren(...JSON.parse(txt).map(card))}catch(_){}}
+function drawQr(url){if(url===lastQr)return;lastQr=url;const q=qrcode(0,'M');q.addData(url);q.make();$('#qr').innerHTML=q.createSvgTag({scalable:true,margin:0})}
+async function loadInfo(){try{info=await(await api('/api/info')).json();
+ const touch=!info.local;$('#zt').textContent=touch?'Tap to choose photos, videos and files':'or click to choose photos, videos and files';
+ $('#zone b').textContent=touch?'Send files':'Drop files here';
+ if(!info.local){$('#side').hidden=true;$('#who').textContent=info.online?'Online session':'Connected to your PC';return}
+ $('#side').hidden=false;const on=!!info.online;$('#who').textContent=on?'This PC · online session':'This PC';
+ const net=$('#net'),opts=info.ips.map(i=>`${i.ip}  (${i.name})`);
+ if(net.dataset.o!==opts.join('|')){net.dataset.o=opts.join('|');net.replaceChildren(...opts.map((o,i)=>new Option(o,i)));sel=Math.min(+ls('net')||0,opts.length-1);net.value=sel}
+ net.hidden=opts.length<2||on;
+ let url='';
+ if(on)url=info.online.url;else if(info.ips.length)url=`http://${info.ips[Math.max(sel,0)].ip}:${info.port}/?k=${info.token}`;
+ $('#qr').style.opacity=url?1:.2;
+ if(url){drawQr(url);$('#link').textContent=url.replace('/?k='+info.token,'');$('#link').onclick=()=>copy(url);
+  $('#hint').textContent=on?'Scan with the DropBridge app from any network. A normal camera just opens the files on Filebin.':'Scan with your phone camera. Same Wi-Fi or hotspot.'}
+ else{$('#link').textContent='';$('#hint').textContent='No network found. Connect to Wi-Fi or turn on your hotspot, or use Share anywhere.'}
+ $('#tg').classList.toggle('on',on);
+ if(!busy)$('#tstat').textContent=on?'On. Files stay on filebin.net for up to 7 days. Anyone with the link can see them.':'Off. Works only on the same Wi-Fi or hotspot.'}catch(_){}}
+$('#net').onchange=e=>{sel=+e.target.value;ls('net',sel);loadInfo()};
+$('#tg').onclick=async()=>{const on=!info.online;if(!on&&!confirm('End the online session and delete its files from Filebin?'))return;
+ busy=true;$('#tstat').textContent='Please wait...';
+ try{const r=await api('/api/online',{method:'POST',body:JSON.stringify({on})});if(!r.ok)throw 0;busy=false;last='';await loadInfo();load()}
+ catch(_){busy=false;$('#tstat').textContent='Could not reach Filebin. Check your internet connection.'}};
+if(window.DropBridgeApp){for(const i of["#rescan","#rs2"]){$(i).hidden=false;$(i).onclick=()=>DropBridgeApp.rescan()}}
+load();loadInfo();setInterval(()=>document.hidden||load(),2500);setInterval(()=>document.hidden||loadInfo(),3000);
+</script></body></html>

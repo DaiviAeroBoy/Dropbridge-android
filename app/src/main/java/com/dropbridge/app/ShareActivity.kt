@@ -17,12 +17,11 @@ class ShareActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val saved = Store.get(this)
-        if (saved == null) {
+        val bin = Store.bin(this)
+        if (saved == null && bin == null) {
             Toast.makeText(this, "Open DropBridge and scan the QR code first", Toast.LENGTH_LONG).show()
             finish(); return
         }
-        val base = Store.base(saved)
-        val tk = Store.token(saved) ?: ""
         val uris = ArrayList<Uri>()
         if (intent.action == Intent.ACTION_SEND) {
             intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris.add(it) }
@@ -30,20 +29,45 @@ class ShareActivity : Activity() {
             intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris.addAll(it) }
         }
         val text = intent.getStringExtra(Intent.EXTRA_TEXT)
-        Toast.makeText(this, "Sending to PC...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Sending...", Toast.LENGTH_SHORT).show()
         Thread {
             var ok = true
             try {
-                if (!text.isNullOrBlank()) postText(base, tk, text)
-                for (u in uris) upload(base, tk, u)
+                if (bin != null) {
+                    val fb = Filebin(bin)
+                    if (!text.isNullOrBlank()) fb.sendText(text)
+                    for (u in uris) {
+                        val (n, sz) = meta(u)
+                        contentResolver.openInputStream(u)!!.use { fb.sendFile(n, sz, it) }
+                    }
+                } else if (saved != null) {
+                    val base = Store.base(saved)
+                    val tk = Store.token(saved) ?: ""
+                    if (!text.isNullOrBlank()) postText(base, tk, text)
+                    for (u in uris) upload(base, tk, u)
+                }
             } catch (e: Exception) {
                 ok = false
             }
             runOnUiThread {
-                Toast.makeText(this, if (ok) "Sent to PC" else "Couldn't reach your PC", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, if (ok) "Sent" else "Couldn't send. Check your connection.", Toast.LENGTH_LONG).show()
                 finish()
             }
         }.start()
+    }
+
+    private fun meta(uri: Uri): Pair<String, Long> {
+        var name = "file"
+        var size = -1L
+        contentResolver.query(uri, null, null, null, null)?.use { cur ->
+            if (cur.moveToFirst()) {
+                val i = cur.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (i >= 0) name = cur.getString(i)
+                val s = cur.getColumnIndex(OpenableColumns.SIZE)
+                if (s >= 0 && !cur.isNull(s)) size = cur.getLong(s)
+            }
+        }
+        return name to size
     }
 
     private fun open(path: String, base: String, tk: String): HttpURLConnection {
@@ -65,15 +89,9 @@ class ShareActivity : Activity() {
     }
 
     private fun upload(base: String, tk: String, uri: Uri) {
-        var name = "file"
-        contentResolver.query(uri, null, null, null, null)?.use { cur ->
-            if (cur.moveToFirst()) {
-                val i = cur.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (i >= 0) name = cur.getString(i)
-            }
-        }
+        val (name, size) = meta(uri)
         val c = open("/api/upload", base, tk)
-        c.setChunkedStreamingMode(64 * 1024)
+        if (size >= 0) c.setFixedLengthStreamingMode(size) else c.setChunkedStreamingMode(64 * 1024)
         c.setRequestProperty("Content-Type", contentResolver.getType(uri) ?: "application/octet-stream")
         c.setRequestProperty("x-filename", URLEncoder.encode(name, "UTF-8").replace("+", "%20"))
         contentResolver.openInputStream(uri)!!.use { input -> c.outputStream.use { out -> input.copyTo(out) } }

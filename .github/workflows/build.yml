@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK and release
 on:
   push:
     branches: [main, master]
@@ -17,10 +17,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
-      - name: Build
-        run: gradle assembleDebug --no-daemon
+      - name: Build signed release APK
+        run: gradle assembleRelease --no-daemon
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk DropBridge.apk
+        run: cp app/build/outputs/apk/release/app-release.apk DropBridge.apk
       - uses: actions/upload-artifact@v4
         with:
           name: DropBridge-apk
@@ -29,5 +29,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: DropBridge (latest build)
+          name: DropBridge for Android (latest build)
+          body: Build #${{ github.run_number }}. Install over the previous version, no need to uninstall.
           files: DropBridge.apk
